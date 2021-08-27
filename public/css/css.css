@@ -1,0 +1,13 @@
+table.buy {
+    background-color: tomato;
+}
+
+.barre{
+    text-decoration: line-through;
+}
+
+.title{
+    text-align: center;
+    margin-bottom: 50px;
+    margin-top: 20px;
+}
