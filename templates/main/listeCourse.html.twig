@@ -38,12 +38,20 @@
 				
 			</tbody>
 		</table>
+
+		<template id="productrow">
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</template>
 	</div>
 
 	<script>
 
 		window.addEventListener("load", function(event) {
-			refreshTable();
+			loadTable();
 		})
 
 		function buy(i) {
@@ -52,14 +60,17 @@
 					'Content-Type': 'application/json'
 					},
 					method: "PUT",
-					body: JSON.stringify({"name":i.name, "buy": true})
+					body: JSON.stringify({"name":i.name})
 					})
-				.then(function (response) {
-
-				document.getElementById('tr-color-' + i.id).className = "table-danger";
-				document.getElementById('barre-' + i.id).className = "barre";
-
-				return i;
+				.then(response => response.json())
+				.then(data => {
+					if(data.buy === true){
+						document.getElementById('tr-color-' + i.id).className = "table-danger";
+						document.getElementById('barre-' + i.id).className = "barre";
+					}else{
+						document.getElementById('tr-color-' + i.id).classList.remove("table-danger");
+						document.getElementById('barre-' + i.id).classList.remove("barre");
+					}
 				});
 			}
 
@@ -71,6 +82,7 @@
 
 				if(event.keyCode === "Enter"){
 					addEmt(document.getElementById("input_elt").value);
+					document.getElementById("input_elt").value = ""
 				}
 			})
 
@@ -78,63 +90,21 @@
 				if (event.defaultPrevented) {
 					return; // Should do nothing if the default action has been cancelled
 				}
-
 				addEmt(document.getElementById("input_elt").value);
+				document.getElementById("input_elt").value = ""
 			})
 
-			function refreshTable() {
-
-				let tbody = document.getElementById("tbody");
-				tbody.innerText = "";
-
+			function loadTable() {
 				fetch(window.location.href+"api")
 				.then(res => res.json())
 				.then(data => {
 
 					data.forEach(elt =>{
-
-						let tr = document.createElement("tr");
-						tr.id = "tr-color-"+elt.id;
-
-						let tdn = document.createElement("td");
-						tdn.id = "barre-"+elt.id;
+						addTable(elt);
 						if(elt.buy === true){
-							tr.className = "table-danger";
-							tdn.className = "barre";
+							document.getElementById('tr-color-' + elt.id).className = "table-danger";
+							document.getElementById('barre-' + elt.id).className = "barre";
 						}
-						tdn.innerText = elt.name;
-
-						let tdU = document.createElement("td");
-						let a = document.createElement("a");
-						a.className = "btn btn-warning"
-						a.addEventListener('click', (event) =>{
-							event.stopPropagation();
-							buy(elt)
-						})
-						let i = document.createElement("i");
-						i.className = "fas fa-check";
-
-						a.appendChild(i);
-						tdU.appendChild(a);
-
-						let tdD = document.createElement("td");
-						let ade = document.createElement("a");
-						ade.className = "btn btn-danger"
-						ade.addEventListener('click', (e)=>{
-							e.stopPropagation();
-							removeElt(elt.id)
-						})
-						let ide = document.createElement("i");
-						ide.className = "fas fa-trash";
-
-						ade.appendChild(ide);
-						tdD.appendChild(ade);
-
-						tr.appendChild(tdn)
-						tr.appendChild(tdU)
-						tr.appendChild(tdD)
-					
-						tbody.appendChild(tr);
 					})
 
 				})
@@ -149,12 +119,15 @@
 					},
 					method: "POST",
 					body: JSON.stringify({"name":value})
-				}).then(res => {
-					refreshTable();
+				}).then(res => res.json())
+				.then(data => {
+					addTable(data);
 				});
 			}
 
-			function removeElt(id){
+
+
+			function removeElt(id, elt){
 				fetch(window.location.href+"api/"+id,
 				{
 					headers: {
@@ -163,8 +136,46 @@
 					},
 					method: "DELETE"
 				}).then(() =>{
-					refreshTable();
+					document.querySelector("tbody").removeChild(elt.parentNode);
 				});
+			}
+
+
+			function addTable(elt){
+				let tbody = document.querySelector("tbody");
+				let template = document.querySelector("#productrow");
+
+				let clone = document.importNode(template.content, true);
+
+				let tr = clone.querySelectorAll("tr");
+				tr[0].id = "tr-color-"+elt.id
+				let td = clone.querySelectorAll("td");
+				td[0].id = "barre-"+elt.id
+				td[0].textContent = elt.name;
+
+				let a = document.createElement("a");
+				a.className = "btn btn-warning"
+				a.addEventListener('click', (event) =>{
+					event.stopPropagation();
+					buy(elt)
+				})
+				let i = document.createElement("i");
+				i.className = "fas fa-check";
+				a.appendChild(i);
+				td[1].appendChild(a);
+
+				let ade = document.createElement("a");
+				ade.className = "btn btn-danger"
+				ade.addEventListener('click', (e)=>{
+					e.stopPropagation();
+					removeElt(elt.id, td[2]);						
+				})
+				let ide = document.createElement("i");
+				ide.className = "fas fa-trash";
+				ade.appendChild(ide);
+				td[2].appendChild(ade);
+
+				tbody.appendChild(clone);
 			}
 	</script>
 

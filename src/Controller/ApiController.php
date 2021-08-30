@@ -49,8 +49,10 @@ class ApiController extends AbstractController
     {
         $upt = json_decode($req->getContent());
 
+        $etat = !$obj->getBuy();
+
         $obj->setName($upt->name);
-        $obj->setBuy($upt->buy);
+        $obj->setBuy($etat);
 
         $em->flush();
 
