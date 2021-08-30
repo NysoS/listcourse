@@ -107,12 +107,12 @@
 						let tdU = document.createElement("td");
 						let a = document.createElement("a");
 						a.className = "btn btn-warning"
-						let i = document.createElement("i");
-						i.className = "fas fa-check";
-						i.addEventListener('click', (event) =>{
+						a.addEventListener('click', (event) =>{
 							event.stopPropagation();
 							buy(elt)
 						})
+						let i = document.createElement("i");
+						i.className = "fas fa-check";
 
 						a.appendChild(i);
 						tdU.appendChild(a);
@@ -120,12 +120,12 @@
 						let tdD = document.createElement("td");
 						let ade = document.createElement("a");
 						ade.className = "btn btn-danger"
-						let ide = document.createElement("i");
-						ide.className = "fas fa-trash";
-						ide.addEventListener('click', (e)=>{
+						ade.addEventListener('click', (e)=>{
 							e.stopPropagation();
 							removeElt(elt.id)
 						})
+						let ide = document.createElement("i");
+						ide.className = "fas fa-trash";
 
 						ade.appendChild(ide);
 						tdD.appendChild(ade);
