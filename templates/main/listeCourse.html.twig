@@ -1,0 +1,171 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello MainController!
+{% endblock %}
+
+{% block body %}
+
+
+	<div
+		class="container  col-3">
+		<!--<form class="row g-3" method="POST" action="{{ path('addElt') }}">
+					<div class="col-10">
+						<input type="text" class="form-control" placeholder="Element" name="elt">
+					</div>
+					<div class="col-auto">
+						<button type="submit" class="btn btn-primary mb-3">add</button>
+					</div>
+				</form>-->
+
+		<div class="row g-3">
+			<div class="col-10">
+				<input type="text" class="form-control" placeholder="Element" name="elt" id="input_elt">
+			</div>
+			<div class="col-auto">
+				<button type="submit" class="btn btn-primary mb-3" id="btn_elt">add</button>
+			</div>
+		</div>
+
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th colspan="3">
+						<strong>Name</strong>
+					</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				
+			</tbody>
+		</table>
+	</div>
+
+	<script>
+
+		window.addEventListener("load", function(event) {
+			refreshTable();
+		})
+
+		function buy(i) {
+			fetch(window.location.href+"api/"+i.id, {headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+					},
+					method: "PUT",
+					body: JSON.stringify({"name":i.name, "buy": true})
+					})
+				.then(function (response) {
+
+				document.getElementById('tr-color-' + i.id).className = "table-danger";
+				document.getElementById('barre-' + i.id).className = "barre";
+
+				return i;
+				});
+			}
+
+
+			document.getElementById("input_elt").addEventListener('keydown', (event) => {
+				if (event.defaultPrevented) {
+					return; // Should do nothing if the default action has been cancelled
+				}
+
+				if(event.keyCode === "Enter"){
+					addEmt(document.getElementById("input_elt").value);
+				}
+			})
+
+			document.getElementById("btn_elt").addEventListener('click', (event) => {
+				if (event.defaultPrevented) {
+					return; // Should do nothing if the default action has been cancelled
+				}
+
+				addEmt(document.getElementById("input_elt").value);
+			})
+
+			function refreshTable() {
+
+				let tbody = document.getElementById("tbody");
+				tbody.innerText = "";
+
+				fetch(window.location.href+"api")
+				.then(res => res.json())
+				.then(data => {
+
+					data.forEach(elt =>{
+
+						let tr = document.createElement("tr");
+						tr.id = "tr-color-"+elt.id;
+
+						let tdn = document.createElement("td");
+						tdn.id = "barre-"+elt.id;
+						if(elt.buy === true){
+							tr.className = "table-danger";
+							tdn.className = "barre";
+						}
+						tdn.innerText = elt.name;
+
+						let tdU = document.createElement("td");
+						let a = document.createElement("a");
+						a.className = "btn btn-warning"
+						a.addEventListener('click', (event) =>{
+							event.stopPropagation();
+							buy(elt)
+						})
+						let i = document.createElement("i");
+						i.className = "fas fa-check";
+
+						a.appendChild(i);
+						tdU.appendChild(a);
+
+						let tdD = document.createElement("td");
+						let ade = document.createElement("a");
+						ade.className = "btn btn-danger"
+						ade.addEventListener('click', (e)=>{
+							e.stopPropagation();
+							removeElt(elt.id)
+						})
+						let ide = document.createElement("i");
+						ide.className = "fas fa-trash";
+
+						ade.appendChild(ide);
+						tdD.appendChild(ade);
+
+						tr.appendChild(tdn)
+						tr.appendChild(tdU)
+						tr.appendChild(tdD)
+					
+						tbody.appendChild(tr);
+					})
+
+				})
+			}
+
+			function addEmt(value){
+				fetch(window.location.href+"api",
+				{
+					headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+					},
+					method: "POST",
+					body: JSON.stringify({"name":value})
+				}).then(res => {
+					refreshTable();
+				});
+			}
+
+			function removeElt(id){
+				fetch(window.location.href+"api/"+id,
+				{
+					headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+					},
+					method: "DELETE"
+				}).then(() =>{
+					refreshTable();
+				});
+			}
+	</script>
+
+{% endblock %}
