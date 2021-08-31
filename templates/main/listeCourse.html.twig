@@ -46,9 +46,32 @@
 				<td></td>
 			</tr>
 		</template>
-	</div>
 
+		<input id="ok" type="file">
+		<button id="btn" class="btn btn-primary">ok</button>
+	</div>
 	<script>
+
+		document.getElementById('btn').addEventListener('click', (e) =>{
+			if (e.defaultPrevented) {
+				return; // Should do nothing if the default action has been cancelled
+			}
+			let a = document.getElementById("ok").files[0]
+
+			fetch(window.location.href+"t",
+				{
+					headers:{
+						'Accept': 'application/json',
+						'Content-Type': 'application/json'
+						},
+						method: "POST",
+						body: JSON.stringify(d)
+					}
+				)
+				.then(res => console.log(res.json({"doc": a})))
+
+		})
+
 
 		window.addEventListener("load", function(event) {
 			loadTable();

@@ -47,11 +47,7 @@ class ApiController extends AbstractController
      */
     public function update(Liste $obj, EntityManagerInterface $em, Request $req): Response
     {
-        $upt = json_decode($req->getContent());
-
         $etat = !$obj->getBuy();
-
-        $obj->setName($upt->name);
         $obj->setBuy($etat);
 
         $em->flush();
@@ -70,6 +66,18 @@ class ApiController extends AbstractController
         $em->flush();
 
         return $this->json("{'ok':'ok'}");
+
+    }
+
+
+    /**
+     * @Route("/t", name="api_t", methods={"POST"})
+     */
+    public function t(Request $req): Response
+    {
+        
+        $t = json_decode($req->getContent());
+        return $this->json($t);
 
     }
 }
